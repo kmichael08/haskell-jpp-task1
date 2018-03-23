@@ -73,9 +73,11 @@ mayStart ch exp = startHelper ch (simpl exp) where
   startHelper ch (Many ex) = startHelper ch ex
   startHelper ch (a :> b) = startHelper ch a || (nullable a && startHelper ch b)
 
--- NOT IMPLEMENTED
 match :: Eq c => Reg c -> [c] -> Maybe [c]
-match r w = Nothing
+match r w = if (res == []) then Nothing else Just $ reverse res where
+  res = match_helper r w [] where
+    match_helper r [] l = l
+    match_helper r (c:cs) l = if (mayStart c r) then match_helper (der c r) cs (c:l) else l 
 
 -- NOT IMPLEMENTED
 search :: Eq c => Reg c -> [c] -> Maybe [c]
