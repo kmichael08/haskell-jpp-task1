@@ -52,15 +52,17 @@ der ch exp = simpl (der_h ch (simpl exp)) where
   der_h c Eps = Eps
   der_h c (Lit a) = Empty
   der_h c ex@(Many sub_ex) = if (mayStart c sub_ex) then ex else Empty
+  der_h c ((Lit a) :> b) = if (c == a) then b else Empty
   der_h c (a :> b) =
     if (dera /= Empty) then simpl (dera :> b) else (if (nullable a) then der_h c b else Empty) where
       dera = der_h c a
 
 ders :: Eq c => [c] -> Reg c -> Reg c
-ders c r = r
+ders [] ex = ex 
+ders (c:cs) ex = ders cs (der c ex)
 
 accepts :: Eq c => Reg c -> [c] -> Bool
-accepts r w = False
+accepts r w = nullable (ders w r)
 
 mayStart :: Eq c => c -> Reg c -> Bool
 mayStart ch exp = startHelper ch (simpl exp) where
@@ -71,12 +73,15 @@ mayStart ch exp = startHelper ch (simpl exp) where
   startHelper ch (Many ex) = startHelper ch ex
   startHelper ch (a :> b) = startHelper ch a || (nullable a && startHelper ch b)
 
+-- NOT IMPLEMENTED
 match :: Eq c => Reg c -> [c] -> Maybe [c]
 match r w = Nothing
 
+-- NOT IMPLEMENTED
 search :: Eq c => Reg c -> [c] -> Maybe [c]
 search r w = Nothing
 
+-- NOT IMPLEMENTED
 findall :: Eq c => Reg c -> [c] -> [[c]]
 findall r w = []
 
