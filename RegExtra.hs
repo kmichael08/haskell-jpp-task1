@@ -22,6 +22,10 @@ instance Mon (Reg c) where
 -- simplifies the regular expression
 -- FAILS SOMETIMES
 simpl :: Reg c -> Reg c
+simpl (Many Empty) = Eps
+simpl (Many Eps) = Eps
+simpl (Many (Many x)) = simpl $ Many x
+simpl (Many x) = Many $ simpl x
 simpl (x :| y) = merger (simpl x) (simpl y) where
   merger Empty x = x
   merger x Empty = x
