@@ -201,11 +201,11 @@ equ6 = ((Lit 'a') :> Eps) === (Lit 'a')
 search1 = search (Lit 'a') "ac" == Just "a"
 search2 = search (Lit 'b') "ac" == Nothing
 search3 = search a "aaa" == Just "aaa"
-search4 = search a "bcd" == Just []
+search4 = search a "bcd" == Just ""
 search5 = search (string "abc") "dabcd" == Just "abc"
 search6 = search (string "ab" :| string "bcd") "abcde" == Just "ab"
 search7 = search a "abaaaa" == Just "a"
-search8 = search a "baaaa" == Just "aaaa"
+search8 = search a "baaaa" == Just ""
 search9 = search (a :> (Lit 'a')) "b" == Nothing
 
 findall1 = findall (Many (Lit 'a' :> Lit 'b')) "aabab" == ["", "abab"]

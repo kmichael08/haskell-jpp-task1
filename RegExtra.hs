@@ -94,7 +94,9 @@ match r w = foldl (\res word -> if (accepts r word) then Just word else res) Not
 
 -- NOT IMPLEMENTED
 search :: Eq c => Reg c -> [c] -> Maybe [c]
-search r w = Nothing
+search r [] = if (accepts r []) then Just [] else Nothing
+search r w@(c:cs) = if (match_pref /= Nothing) then match_pref else search r cs  
+  where match_pref = match r w
 
 -- NOT IMPLEMENTED
 findall :: Eq c => Reg c -> [c] -> [[c]]
