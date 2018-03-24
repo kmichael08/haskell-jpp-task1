@@ -70,6 +70,7 @@ main = do
   quickCheck match7
   quickCheck match8
   quickCheck match9
+  quickCheck match10
 --quickCheck simpl1
 --quickCheck simpl2
 --quickCheck simpl3
@@ -153,14 +154,15 @@ ders10 = ders "aa" (Lit 'a') == Empty
 ders11 = ders "ababaaba" (Many (a :> b)) == (Many (a :> b))
 
 match1 = match a "aaa" == Just "aaa"
-match2 = match b "aa" == Nothing
-match3 = match s "abdef" == Just "ab"
+match2 = match b "aa" == Just ""
+match3 = match s "abdef" == Nothing
 match4 = match (a :> b) "aaba" == Just "aab"
 match5 = match (a :> b :> a) "aaabaab" == Just "aaabaa"
 match6 = match (a :> b) "bbbbbc" == Just "bbbbb"
 match7 = match s "bcd" == Nothing
 match8 = match (a :| b :| s) "aab" == Just "aa"
-match9 = match (a :| b :| s) "abbb" == Just "ab"
+match9 = match (a :| b :| s) "abbb" == Just "a"
+match10 = match ((string "ab") :> (Many (Lit 'a'))) "aba" == Just "aba"
 
 --simpl1 = simpl Empty == Empty
 --simpl2 = simpl Eps == Eps
