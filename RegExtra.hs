@@ -19,9 +19,17 @@ instance Mon (Reg c) where
   m1 = Eps
   x <> y = x :> y
 
+-- helper function for simpl. subexp r s means r is included in s
+subexp :: Eq c => Reg c -> Reg c -> Bool
+subexp Empty _ = True
+subexp Eps y = nullable y
+subexp (Many x) (Many y) = x `subexp` y
+subexp (x :| y) r = (x `subexp` r) && (y `subexp` r)
+subexp r (x :| y) = (r `subexp` x) || (r `subexp` y) 
+subexp r s = r == s
+
 -- simplifies the regular expression
--- FAILS SOMETIMES
-simpl :: Reg c -> Reg c
+simpl :: Eq c => Reg c -> Reg c
 simpl (Many Empty) = Eps
 simpl (Many Eps) = Eps
 simpl (Many (Many x)) = simpl $ Many x
@@ -30,7 +38,10 @@ simpl (x :| y) = merger (simpl x) (simpl y) where
   merger Empty x = x
   merger x Empty = x
   merger Eps Eps = Eps
-  merger x y = x :| y
+  merger x y
+    | y `subexp` x = x
+    | x `subexp` y = y
+    | otherwise = x :| y
 simpl (x :> (y :> z)) = simpl (x :> y :> z)
 simpl (x :> y) = concat (simpl x) (simpl y) where
   concat Eps x = x
