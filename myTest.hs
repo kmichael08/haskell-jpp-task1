@@ -7,7 +7,10 @@ import Mon
 import Reg
 import RegExtra
 
+writeln = putStrLn
+
 main = do
+  writeln "null tests"
   quickCheck null1
   quickCheck null2
   quickCheck null3
@@ -15,6 +18,7 @@ main = do
   quickCheck null5
   quickCheck null6
   quickCheck null7
+  writeln "empty tests"
   quickCheck empty1
   quickCheck empty2
   quickCheck empty3
@@ -23,6 +27,7 @@ main = do
   quickCheck empty6
   quickCheck empty7
   quickCheck empty8
+  writeln "accepts tests"
   quickCheck acc1
   quickCheck acc2
   quickCheck acc3
@@ -34,6 +39,8 @@ main = do
   quickCheck acc9
   quickCheck acc10
   quickCheck acc11
+  quickCheck acc12
+  writeln "start tests"
   quickCheck start1
   quickCheck start2
   quickCheck start3
@@ -42,6 +49,7 @@ main = do
   quickCheck start6
   quickCheck start7
   quickCheck start8
+  writeln "der tests"
   quickCheck der1
   quickCheck der2
   quickCheck der3
@@ -50,6 +58,7 @@ main = do
   quickCheck der6
   quickCheck der7
   quickCheck der8
+  writeln "ders tests"
   quickCheck ders1
   quickCheck ders2
   quickCheck ders3
@@ -60,7 +69,8 @@ main = do
   quickCheck ders8
   quickCheck ders9
   quickCheck ders10
-  quickCheck ders11
+--quickCheck ders11
+  writeln "match tests"
   quickCheck match1
   quickCheck match2
   quickCheck match3
@@ -71,6 +81,8 @@ main = do
   quickCheck match8
   quickCheck match9
   quickCheck match10
+  quickCheck match11
+  writeln "simpl tests"
 --quickCheck simpl1
 --quickCheck simpl2
 --quickCheck simpl3
@@ -82,12 +94,14 @@ main = do
   quickCheck simpl9
   quickCheck simpl10
   quickCheck simpl11
+  writeln "equ tests"
   quickCheck equ1
   quickCheck equ2
 --quickCheck equ3
 --quickCheck equ4
   quickCheck equ5
   quickCheck equ6
+  writeln "search tests"
   quickCheck search1
   quickCheck search2
   quickCheck search3
@@ -97,13 +111,14 @@ main = do
   quickCheck search7
   quickCheck search8
   quickCheck search9
+  quickCheck search10
+  writeln "findall tests"
   quickCheck findall1
   quickCheck findall2
   quickCheck findall3
   quickCheck findall4
   quickCheck findall5
   quickCheck findall6
-
 
 a = Many (Lit 'a')
 b = Many (Lit 'b')
@@ -129,6 +144,7 @@ acc8 = accepts (a :> b :> a) "a"
 acc9 = not $ accepts (a :| b) "ab"
 acc10 = not $ accepts (a :> b) "aba"
 acc11 = accepts (Many (a :> b)) "ababaa"
+acc12 = accepts (many1 (Lit 'a' :> Lit 'b')) "abab"
 
 null1 = nullable a
 null2 = nullable Eps
@@ -178,6 +194,7 @@ match7 = match s "bcd" == Nothing
 match8 = match (a :| b :| s) "aab" == Just "aa"
 match9 = match (a :| b :| s) "abbb" == Just "a"
 match10 = match ((string "ab") :> (Many (Lit 'a'))) "aba" == Just "aba"
+match11 = match (many1 (Lit 'a' :> Lit 'b')) "abab" == Just "abab"
 
 --simpl1 = simpl Empty == Empty
 --simpl2 = simpl Eps == Eps
@@ -207,9 +224,10 @@ search6 = search (string "ab" :| string "bcd") "abcde" == Just "ab"
 search7 = search a "abaaaa" == Just "a"
 search8 = search a "baaaa" == Just ""
 search9 = search (a :> (Lit 'a')) "b" == Nothing
+search10 = search (many1 (Lit 'a' :> Lit 'b')) "abab" == Just "abab"
 
 findall1 = findall (Many (Lit 'a' :> Lit 'b')) "aabab" == ["", "abab"]
-findall2 = findall (many1 (Lit 'a')) "aabab" == ["abab"]
+findall2 = findall (many1 (Lit 'a' :> Lit 'b')) "aabab" == ["abab"]
 findall3 = findall ((Lit 'a' :> Lit 'b') :| (Lit 'b' :> Lit 'c')) "abc" == ["ab", "bc"]
 findall4 = findall (Many letter) "two words" == ["two", "", "words"]
 findall5 = findall (Many (Lit 'a' :| Lit 'b')) "ccabccacc" == ["", "", "ab", "", "", "a", "", ""]

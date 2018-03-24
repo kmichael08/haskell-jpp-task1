@@ -1,4 +1,4 @@
-BINFILES=TestReg
+BINFILES=TestReg myTest
 
 test: TestReg
 	./TestReg

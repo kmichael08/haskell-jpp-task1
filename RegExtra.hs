@@ -1,3 +1,5 @@
+-- Michał Kuźba, mk371148
+
 module RegExtra where
 import Mon
 import Reg
@@ -13,7 +15,7 @@ instance (Eq c) => Equiv (Reg c) where
    x === y = equal (simpl x) (simpl y) where
      equal (Lit a) (Lit b) = a == b
      equal x y = True
-
+     
 instance Mon (Reg c) where
   m1 = Eps
   x <> y = (simpl x) :> (simpl y)
@@ -36,34 +38,30 @@ simpl x = x
 
 -- does empty word belongs to the language
 nullable :: Reg c -> Bool
-nullable x = null_helper simpler where
-  null_helper Eps = True
-  null_helper (Many _) = True
-  null_helper (x :| y) = null_helper x || null_helper y
-  null_helper (x :> y) = null_helper x && null_helper y
-  null_helper _ = False
-  simpler = simpl x
+nullable Eps = True
+nullable (Many _) = True
+nullable (x :| y) = nullable x || nullable y
+nullable (x :> y) = nullable x && nullable y
+nullable _ = False
 
 -- is language empty
 empty :: Reg c -> Bool 
-empty z = empty_helper simpler where
-  empty_helper Empty = True
-  empty_helper _ = False
-  simpler = simpl z
+empty Empty = True
+empty (x :| y) = empty x && empty y
+empty (x :> y) = empty x || empty y
+empty _ = False
 
 -- derivative of expression on character c
 der :: Eq c => c -> Reg c -> Reg c
-der ch exp = simpl (der_h ch (simpl exp)) where
-  der_h c (a :| b) = simpl (der_h c a) :| simpl (der_h c b)
+der ch exp = der_h ch (simpl exp) where
+  der_h c (a :| b) = simpl (der_h c a :| der_h c b)
   der_h c Empty = Empty
   der_h c Eps = Empty
   der_h c (Lit a) = if (c == a) then Eps else Empty
-  der_h c ex@(Many sub_ex) = if (mayStart c sub_ex) then ex else Empty
+  der_h c ex@(Many sub_ex) = simpl (der_h c sub_ex :> ex)
   der_h c (a :> b) =
-    if (nullable a) then simpl (derb :| derab) else derab where
-      dera = der c a
-      derb = der c b
-      derab = simpl (dera :> b)
+    if (nullable a) then simpl (der c b :| derab) else derab where
+      derab = simpl (der c a :> b)
 
 -- derivative of expression on the word
 ders :: Eq c => [c] -> Reg c -> Reg c
@@ -92,15 +90,25 @@ prefs (x:xs) = []:[x:y | y <- prefs xs]
 match :: Eq c => Reg c -> [c] -> Maybe [c]
 match r w = foldl (\res word -> if (accepts r word) then Just word else res) Nothing (prefs w) 
 
--- NOT IMPLEMENTED
+-- searches first (the longest subword of w accepted by r)
 search :: Eq c => Reg c -> [c] -> Maybe [c]
 search r [] = if (accepts r []) then Just [] else Nothing
 search r w@(c:cs) = if (match_pref /= Nothing) then match_pref else search r cs  
   where match_pref = match r w
 
--- NOT IMPLEMENTED
+-- helper function take value out of Just a
+eliminate (Just a) = a
+
+-- NOT IMPLEMENTED, FAILS
 findall :: Eq c => Reg c -> [c] -> [[c]]
-findall r w = []
+findall r w = find_h r w 0 where
+  find_h r [] _ = []
+  find_h r w@(c:cs) len = if (pref == Nothing || (new_len <= len && len > 0)) then
+    find_h r cs (max 0 (len - 1)) else
+    new_el:(find_h r cs (max 0 (new_len - 1))) where
+    pref = match r w
+    new_el = eliminate pref
+    new_len = length new_el
 
 char :: Char -> Reg Char
 char = Lit
