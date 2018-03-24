@@ -88,6 +88,21 @@ main = do
 --quickCheck equ4
   quickCheck equ5
   quickCheck equ6
+  quickCheck search1
+  quickCheck search2
+  quickCheck search3
+  quickCheck search4
+  quickCheck search5
+  quickCheck search6
+  quickCheck search7
+  quickCheck search8
+  quickCheck search9
+  quickCheck findall1
+  quickCheck findall2
+  quickCheck findall3
+  quickCheck findall4
+  quickCheck findall5
+  quickCheck findall6
 
 
 a = Many (Lit 'a')
@@ -182,3 +197,20 @@ equ2 = not $ (Lit 'b') === (Lit 'a')
 --equ4 = Eps === Eps
 equ5 = ((Lit 'a') :| Empty) === (Lit 'a')
 equ6 = ((Lit 'a') :> Eps) === (Lit 'a')
+
+search1 = search (Lit 'a') "ac" == Just "a"
+search2 = search (Lit 'b') "ac" == Nothing
+search3 = search a "aaa" == Just "aaa"
+search4 = search a "bcd" == Just []
+search5 = search (string "abc") "dabcd" == Just "abc"
+search6 = search (string "ab" :| string "bcd") "abcde" == Just "ab"
+search7 = search a "abaaaa" == Just "a"
+search8 = search a "baaaa" == Just "aaaa"
+search9 = search (a :> (Lit 'a')) "b" == Nothing
+
+findall1 = findall (Many (Lit 'a' :> Lit 'b')) "aabab" == ["", "abab"]
+findall2 = findall (many1 (Lit 'a')) "aabab" == ["abab"]
+findall3 = findall ((Lit 'a' :> Lit 'b') :| (Lit 'b' :> Lit 'c')) "abc" == ["ab", "bc"]
+findall4 = findall (Many letter) "two words" == ["two", "", "words"]
+findall5 = findall (Many (Lit 'a' :| Lit 'b')) "ccabccacc" == ["", "", "ab", "", "", "a", "", ""]
+findall6 = findall (many1 (Lit 'a' :> Lit 'b')) "aabab" == ["abab"]
