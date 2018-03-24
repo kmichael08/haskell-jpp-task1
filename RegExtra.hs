@@ -13,12 +13,11 @@ class Equiv a where
 
 instance (Eq c) => Equiv (Reg c) where
    x === y = equal (simpl x) (simpl y) where
-     equal (Lit a) (Lit b) = a == b
-     equal x y = True
+     equal x y = (simpl x == simpl y)
      
 instance Mon (Reg c) where
   m1 = Eps
-  x <> y = (simpl x) :> (simpl y)
+  x <> y = x :> y
 
 -- simplifies the regular expression
 -- FAILS SOMETIMES
@@ -28,6 +27,7 @@ simpl (x :| y) = merger (simpl x) (simpl y) where
   merger x Empty = x
   merger Eps Eps = Eps
   merger x y = x :| y
+simpl (x :> (y :> z)) = simpl (x :> y :> z)
 simpl (x :> y) = concat (simpl x) (simpl y) where
   concat Eps x = x
   concat x Eps = x
@@ -99,7 +99,7 @@ search r w@(c:cs) = if (match_pref /= Nothing) then match_pref else search r cs
 -- helper function take value out of Just a
 eliminate (Just a) = a
 
--- NOT IMPLEMENTED, FAILS
+-- finds all locally longest subwords of w matching r
 findall :: Eq c => Reg c -> [c] -> [[c]]
 findall r w = find_h r w 0 where
   find_h r [] _ = []
