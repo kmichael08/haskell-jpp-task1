@@ -47,6 +47,9 @@ simpl (x :> y) = concat (simpl x) (simpl y) where
   concat x Eps = x
   concat Empty x = Empty
   concat x Empty = Empty
+  concat r1@(Many x) r2@(Many y)
+    | x == y = r1
+    | otherwise = r1 :> r2
   concat x y = x :> y
 simpl x = x
 

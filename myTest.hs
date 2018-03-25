@@ -94,6 +94,9 @@ main = do
   quickCheck simpl9
   quickCheck simpl10
   quickCheck simpl11
+  quickCheck simpl12
+  quickCheck simpl13
+  quickCheck simpl14
   writeln "equ tests"
   quickCheck equ1
   quickCheck equ2
@@ -112,6 +115,14 @@ main = do
   quickCheck search8
   quickCheck search9
   quickCheck search10
+  quickCheck search11
+  quickCheck search12
+  quickCheck search13
+  quickCheck search14
+  quickCheck search15
+  quickCheck search16
+  quickCheck search17
+
   writeln "findall tests"
   quickCheck findall1
   quickCheck findall2
@@ -119,6 +130,12 @@ main = do
   quickCheck findall4
   quickCheck findall5
   quickCheck findall6
+  quickCheck findall7
+  quickCheck findall8
+  quickCheck findall9
+  quickCheck findall10
+  quickCheck findall11
+  quickCheck findall12
 
 a = Many (Lit 'a')
 b = Many (Lit 'b')
@@ -207,6 +224,9 @@ simpl6 = simpl (Empty :| s) == simpl s
 simpl9 = simpl (Eps :> a) == a
 simpl10 = simpl (Lit 'a') == (Lit 'a')
 simpl11 = simpl ((Eps :> s) :| Empty :| Empty) == simpl s
+simpl12 = simpl (Many (Many a)) == a
+simpl13 = simpl (Many (Many s)) == simpl (Many s)
+simpl14 = simpl (many1 a) == simpl (Many a)
 
 equ1 = (Lit 'a') === (Lit 'a')
 equ2 = not $ (Lit 'b') === (Lit 'a')
@@ -225,6 +245,13 @@ search7 = search a "abaaaa" == Just "a"
 search8 = search a "baaaa" == Just ""
 search9 = search (a :> (Lit 'a')) "b" == Nothing
 search10 = search (many1 (Lit 'a' :> Lit 'b')) "abab" == Just "abab"
+search11 = search Empty "ac" == Nothing
+search12 = search Eps "ac" == Just ""
+search13 = search (Eps :> Eps :> Eps) "aaaa" == Just ""
+search14 = search (Many $ Lit 'a') "" == Just ""
+search15 = search (Lit 'a' :> Lit 'b') "" == Nothing
+search16 = search (string "ab" :| string "bcd") "abcd" == Just "ab"
+search17 = search (string "a" :> string "b" :> string "c") "fabc" == Just "abc"
 
 findall1 = findall (Many (Lit 'a' :> Lit 'b')) "aabab" == ["", "abab"]
 findall2 = findall (many1 (Lit 'a' :> Lit 'b')) "aabab" == ["abab"]
@@ -232,3 +259,9 @@ findall3 = findall ((Lit 'a' :> Lit 'b') :| (Lit 'b' :> Lit 'c')) "abc" == ["ab"
 findall4 = findall (Many letter) "two words" == ["two", "", "words"]
 findall5 = findall (Many (Lit 'a' :| Lit 'b')) "ccabccacc" == ["", "", "ab", "", "", "a", "", ""]
 findall6 = findall (many1 (Lit 'a' :> Lit 'b')) "aabab" == ["abab"]
+findall7 = findall (many1 (string "a")) "abcxfyaaa" == ["a", "aaa"]
+findall8 = findall (Many (string "a" :| Empty)) "abcxfyaaa" == "a":(replicate 5 "") ++ ["aaa"]
+findall9 = findall (Many (Many (Many a))) "ababbaaabaa" == ["a", "", "a", "", "", "aaa", "", "aa"]
+findall10 = findall Eps "abba" == replicate 4 ""
+findall11 = findall Empty "abcdef" == []
+findall12 = findall (Lit 'a') (replicate 100 'a') == replicate 100 "a"
