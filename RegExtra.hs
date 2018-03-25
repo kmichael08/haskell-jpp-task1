@@ -12,8 +12,7 @@ class Equiv a where
   (===) :: a -> a -> Bool
 
 instance (Eq c) => Equiv (Reg c) where
-   x === y = equal (simpl x) (simpl y) where
-     equal x y = (simpl x == simpl y)
+   x === y = (simpl x) == (simpl y)
      
 instance Mon (Reg c) where
   m1 = Eps
@@ -72,12 +71,14 @@ der ch exp = der_h ch (simpl exp) where
   der_h c (a :| b) = simpl (der_h c a :| der_h c b)
   der_h c Empty = Empty
   der_h c Eps = Empty
-  der_h c (Lit a) = if (c == a) then Eps else Empty
+  der_h c (Lit a)
+    | c == a = Eps
+    | otherwise = Empty
   der_h c ex@(Many sub_ex) = simpl (der_h c sub_ex :> ex)
-  der_h c (a :> b) =
-    if (nullable a) then simpl (der c b :| derab) else derab where
-      derab = simpl (der c a :> b)
-
+  der_h c (a :> b) 
+    | nullable a = simpl (der c b :| (simpl $ der c a :> b))
+    | otherwise = simpl (der c a :> b)
+      
 -- derivative of expression on the word
 ders :: Eq c => [c] -> Reg c -> Reg c
 ders [] ex = ex 
@@ -107,8 +108,12 @@ match r w = foldl (\res word -> if (accepts r word) then Just word else res) Not
 
 -- searches first (the longest subword of w accepted by r)
 search :: Eq c => Reg c -> [c] -> Maybe [c]
-search r [] = if (accepts r []) then Just [] else Nothing
-search r w@(c:cs) = if (match_pref /= Nothing) then match_pref else search r cs  
+search r []
+  | accepts r [] = Just []
+  | otherwise = Nothing
+search r w@(c:cs)
+  | match_pref == Nothing = search r cs
+  | otherwise = match_pref
   where match_pref = match r w
 
 -- helper function take value out of Just a
