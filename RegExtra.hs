@@ -125,11 +125,15 @@ eliminate (Just a) = a
 
 -- finds all locally longest subwords of w matching r
 findall :: Eq c => Reg c -> [c] -> [[c]]
-findall r w = find_h r w 0 where
-  find_h r [] _ = []
-  find_h r w@(c:cs) len = if (pref == Nothing || (new_len <= len && len > 0)) then
-    find_h r cs (max 0 (len - 1)) else
-    new_el:(find_h r cs (max 0 (new_len - 1))) where
+findall r w = find_h r w 0
+
+-- helper function for findall, len is the length of the previous subword
+find_h :: Eq c => Reg c -> [c] -> Int -> [[c]]
+find_h r [] _ = []
+find_h r w@(c:cs) len
+  | pref == Nothing || (new_len <= len && len > 0) = find_h r cs (max 0 (len - 1))
+  | otherwise = new_el:(find_h r cs (max 0 (new_len - 1)))
+  where
     pref = match r w
     new_el = eliminate pref
     new_len = length new_el
