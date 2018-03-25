@@ -70,6 +70,7 @@ main = do
   quickCheck ders9
   quickCheck ders10
 --quickCheck ders11
+  quickCheck ders12
   writeln "match tests"
   quickCheck match1
   quickCheck match2
@@ -199,7 +200,9 @@ ders7 = ders "ab" a == Empty
 ders8 = ders "a" (Lit 'a') == Eps
 ders9 = ders "a" (Lit 'b') == Empty
 ders10 = ders "aa" (Lit 'a') == Empty
+-- ders11 fails which is not a problem
 ders11 = ders "ababaaba" (Many (a :> b)) == (Many (a :> b))
+ders12 = ders (replicate 1000 A) (Many (Lit A) :> Lit B) == (Many (Lit A) :> Lit B)
 
 match1 = match a "aaa" == Just "aaa"
 match2 = match b "aa" == Just ""
