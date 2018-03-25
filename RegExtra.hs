@@ -98,18 +98,22 @@ mayStart ch exp = startHelper ch (simpl exp) where
   startHelper ch (Many ex) = startHelper ch ex
   startHelper ch (a :> b) = startHelper ch a || (nullable a && startHelper ch b)
 
--- helper function inits, ex. [1, 2] -> [[], [1], [1, 2]]
+-- helper function prefixes, ex. [1, 2] -> [[], [1], [1, 2]]
 prefs [] = [[]]
 prefs (x:xs) = []:[x:y | y <- prefs xs]
 
 -- longest prefix of w matching expression r
 match :: Eq c => Reg c -> [c] -> Maybe [c]
-match r w = foldl (\res word -> if (accepts r word) then Just word else res) Nothing (prefs w) 
+match r word = match_h (reverse $ prefs word) where
+  match_h [] = Nothing
+  match_h (w:ws)
+    | accepts r w = Just w
+    | otherwise = match_h ws
 
 -- searches first (the longest subword of w accepted by r)
 search :: Eq c => Reg c -> [c] -> Maybe [c]
 search r []
-  | accepts r [] = Just []
+  | nullable r = Just []
   | otherwise = Nothing
 search r w@(c:cs)
   | match_pref == Nothing = search r cs
