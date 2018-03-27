@@ -33,7 +33,7 @@ simpl (Many Empty) = Eps
 simpl (Many Eps) = Eps
 simpl (Many (Many x)) = simpl $ Many x
 simpl (Many x) = Many $ simpl x
-simpl (x :| y) = merger (simpl x) (simpl y) where
+simpl (r :| s) = merger (simpl r) (simpl s) where
   merger Empty x = x
   merger x Empty = x
   merger Eps Eps = Eps
@@ -45,8 +45,8 @@ simpl (x :> (y :> z)) = simpl (x :> y :> z)
 simpl (x :> y) = concat (simpl x) (simpl y) where
   concat Eps x = x
   concat x Eps = x
-  concat Empty x = Empty
-  concat x Empty = Empty
+  concat Empty _ = Empty
+  concat _ Empty = Empty
   concat r1@(Many x) r2@(Many y)
     | x == y = r1
     | otherwise = r1 :> r2
